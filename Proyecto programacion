@@ -1,1 +1,117 @@
-print ("hola mundo")
+import random
+
+def crear_album(paginas, filas, columnas):
+    album = []
+    numcelda = 1
+    for i in range(paginas):
+        pagina = []
+        for j in range(filas):
+            fila = []
+            for k in range(columnas):
+                fila.append(numcelda)  # asigna un nro especifico de figurita a cada celda
+                numcelda += 1
+            pagina.append(fila)
+        album.append(pagina)
+    return album
+
+def mostrar_album(album):
+    pagina_num = 1
+    for pagina in album:
+        print(f"Página {pagina_num}:")
+        for fila in pagina:
+            fila_str = ""
+            for i in range(len(fila)):
+                celda = fila[i]
+                if type(celda) == str and celda[0] == 'F': # Verifica si la celda contiene una figurita (es de tipo str y empieza con 'F')
+                    fila_str += f"[{celda}]"
+                else:
+                    fila_str += "[ ]"
+                if i < len(fila) - 1:
+                    fila_str += " "
+            print(fila_str)
+        print()
+        pagina_num += 1
+
+abrir_paquete = lambda num_figuritas, max_figura: sorted([random.randint(1, max_figura) for _ in range(num_figuritas)]) # Genera un paquete de figuritas aleatoriamente y lo ordena de menor a mayor
+
+def insertar_figura_en_album(album, figura):
+    for pagina in album:
+        for fila in pagina:
+            for i in range(len(fila)):
+                if fila[i] == figura:
+                    fila[i] = f'F{figura}'  # Marca la celda con la figurita
+                    return True
+                elif fila[i] == f'F{figura}':
+                    return False
+    return False
+
+def completar_album(album, paquete, repetidas):
+    for figura in paquete:
+        if not insertar_figura_en_album(album, figura):
+            repetidas.append(figura)
+    return repetidas
+
+def contar_figuritas(album):
+    total = 0
+    for pagina in album:
+        for fila in pagina:
+            for celda in fila:
+                if type(celda) == str and celda[0] == 'F': # Verifica si la celda contiene una figurita (es de tipo str y empieza con 'F')
+                    total += 1
+    return total
+
+def main():
+    paginas = 3
+    filas = 5
+    columnas = 5
+    max_figura = 75  # Número máximo de figuritas diferentes
+    album = crear_album(paginas, filas, columnas)
+    continuar = True
+    todas_las_figuritas = []
+    figuritas_repetidas = []
+
+    while continuar:
+        print("\nGestión del Álbum de Figuritas")
+        print("1. Mostrar álbum")
+        print("2. Abrir paquete de figuritas")
+        print("3. Contar figuritas")
+        print("4. Contar figuritas repetidas")
+        print("5. Salir")
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == '1':
+            mostrar_album(album)
+        elif opcion == '2':
+            paquete = abrir_paquete(5, max_figura)
+            for figurita in paquete:
+                todas_las_figuritas.append(figurita)
+            print(f"Paquete abierto: {paquete}")
+            repetidas = completar_album(album, paquete, figuritas_repetidas)
+            if repetidas:
+                print(f"Figuritas obtenidas que son repetidas: {repetidas}")
+            else:
+                print("No hay figuritas repetidas.")
+        elif opcion == '3':
+            total = contar_figuritas(album)
+            print(f"Total de figuritas en el álbum: {total}")
+        elif opcion == '4':
+            print(f"Total de figuritas repetidas en general: {len(figuritas_repetidas)}")
+        elif opcion == '5':
+            print("Saliendo del programa...")
+            continuar = False
+        else:
+            print("Opción inválida")
+            
+        # Verificar si el álbum está completo
+        total_figuras = paginas * filas * columnas
+        if contar_figuritas(album) == total_figuras:
+            mostrar_album(album)
+            print("¡Felicitaciones, completaste el álbum!")
+            print()
+            print(f"Total de figuritas obtenidas: {len(todas_las_figuritas)}")
+            print()
+            print(f"Total de figuritas repetidas: {len(figuritas_repetidas)}")
+            continuar = False
+            
+if __name__ == "__main__":
+    main()
